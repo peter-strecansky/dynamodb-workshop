@@ -54,6 +54,7 @@ def add_account(account: Account):
             "account_id": {"S": str(account.account_id)},
             "account_type": {"S": account.account_type},
             "balance": {"N": str(account.balance)},
+            "version": {"N": str(account.version)},
         },
         # Only this format can be used
         ConditionExpression="attribute_not_exists(account_id) AND attribute_not_exists(account_type)",

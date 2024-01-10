@@ -16,4 +16,4 @@ class Account(BaseModel):
     balance: int
     overdraft_limit: int = Field(default=-500, lt=0)
     # Optimistic locking field
-    # version: int
+    version: int = Field(default=0, ge=0)

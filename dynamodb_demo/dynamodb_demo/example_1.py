@@ -42,6 +42,7 @@ def add_account(account: Account):
             "account_id": str(account.account_id),
             "account_type": account.account_type,
             "balance": account.balance,
+            "version": account.version,
         },
         ConditionExpression=And(Attr("account_id").not_exists(), Attr("account_type").not_exists()),
         # Alternative:
@@ -88,6 +89,7 @@ def update_account_balance(account_id: str, account_type: AccountType, new_balan
     dynamodb = boto3.resource("dynamodb")
     table = dynamodb.Table("accounts")
 
+    # Note: it is possible to use arg item and pass in the whole account object
     response = table.update_item(
         Key=dict(account_id=account_id, account_type=account_type),
         UpdateExpression="set balance = :balance",
