@@ -1,5 +1,6 @@
 # Basic dynamoDB operations using boto3.resource
 import logging
+from decimal import Decimal
 
 import boto3
 from boto3.dynamodb.conditions import And, Attr
@@ -80,7 +81,7 @@ def query_account(account_id: str):
     return response
 
 
-def update_account_balance(account_id: str, account_type: AccountType, new_balance: int):
+def update_account_balance(account_id: str, account_type: AccountType, new_balance: int | Decimal):
     """
     Source: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Table.update_item
     """

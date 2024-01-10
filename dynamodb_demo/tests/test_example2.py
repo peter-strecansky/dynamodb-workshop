@@ -1,10 +1,11 @@
 import uuid
+from decimal import Decimal
 
 import pytest
 from botocore.exceptions import ClientError
-from decimal import Decimal
 
-from dynamodb_demo.example_1 import (
+from dynamodb_demo.example_2 import (
+    _format_response,
     add_account,
     create_accounts_table,
     get_account,
@@ -15,10 +16,11 @@ from dynamodb_demo.models import Account
 
 
 def test_create_table():
-    table = create_accounts_table()
+    res = create_accounts_table()
 
-    assert table.name == "accounts"
-    assert table.table_status == "ACTIVE"
+    assert res["TableDescription"]["TableName"] == "accounts"
+    assert res["TableDescription"]["TableStatus"] == "ACTIVE"
+    assert res["ResponseMetadata"]["HTTPStatusCode"] == 200
 
 
 def test_add_account(set_up_accounts_table):
@@ -44,7 +46,8 @@ def test_get_account(set_up_accounts_table):
     add_account(account)
 
     res = get_account(str(account.account_id), account.account_type)
-    assert Account.parse_obj(res["Item"]) == account
+    assert res["ResponseMetadata"]["HTTPStatusCode"] == 200
+    assert Account.parse_obj(_format_response(res.get("Item"))) == account
 
 
 def test_query_account(set_up_accounts_table):
@@ -55,8 +58,9 @@ def test_query_account(set_up_accounts_table):
     add_account(account2)
 
     res = query_account(str(account_id))
+    assert res["ResponseMetadata"]["HTTPStatusCode"] == 200
     assert res["Count"] == 2
-    accounts = [Account.parse_obj(item) for item in res["Items"]]
+    accounts = [Account.parse_obj(_format_response(item)) for item in res["Items"]]
     assert accounts == [account, account2]
 
 
@@ -66,4 +70,6 @@ def test_update_account_balance(set_up_accounts_table, new_balance):
     add_account(account)
 
     res = update_account_balance(str(account.account_id), account.account_type, new_balance)
-    assert res["Attributes"] == {"balance": new_balance}
+
+    assert res["ResponseMetadata"]["HTTPStatusCode"] == 200
+    assert res["Attributes"] == {"balance": {"N": str(new_balance)}}
